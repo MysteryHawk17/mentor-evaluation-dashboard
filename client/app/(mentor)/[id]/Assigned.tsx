@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSearchParams, useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Table,
   TableBody,
@@ -11,10 +12,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { CSVLink } from "react-csv";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Skeleton } from "@/components/ui/skeleton";
 interface Student {
   _id: string;
   name: string;
@@ -39,18 +53,25 @@ interface Student {
   };
 }
 export default function MarksTable() {
+  const { toast } = useToast();
   const { id } = useParams();
   console.log(id);
   const [studentData, setStudentData] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
+    setLoading(true);
     axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/mentor/getstudents/${id}`)
+      .get(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/mentor/getstudents/${id}`
+      )
       .then((res) => {
         setStudentData(res.data);
         console.log(res.data);
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
       });
   }, []);
   const [editMode, setEditMode] = useState<{ [key: string]: boolean }>({});
@@ -74,9 +95,19 @@ export default function MarksTable() {
         findStudent?.marks
       )
       .then((res) => {
+        toast({
+          title: "Marks Updated",
+          message: "Marks Updated Successfully",
+          type: "success",
+        });
         console.log(res.data);
       })
       .catch((err) => {
+        toast({
+          title: "Marks Update Failed",
+          message: "Marks Update Failed",
+          type: "error",
+        });
         console.log(err);
       });
   };
@@ -109,23 +140,47 @@ export default function MarksTable() {
     const allStudentId = studentData.map((s) => s._id);
     const obj = { studentIds: allStudentId };
     axios
-      .put(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/student/lockmarkofallstudents/${id}`, obj)
+      .put(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/student/lockmarkofallstudents/${id}`,
+        obj
+      )
       .then((res) => {
         console.log(res.data);
+        toast({
+          title: "Locked All",
+          message: "Locked successfully",
+          type: "success",
+        });
       })
       .catch((err) => {
+        toast({
+          title: "Locking Failed",
+          message: "Locking Failed",
+          type: "error",
+        });
         console.log(err);
       });
   };
   const handleOneLock = (studentId: string) => {
-    console.log("hello");
-    console.log(studentId);
     axios
-      .put(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/student/lockmarkofstudent/${id}`,{studentId:studentId})
+      .put(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/student/lockmarkofstudent/${id}`,
+        { studentId: studentId }
+      )
       .then((res) => {
+        toast({
+          title: "Locked",
+          message: "Locked successfully",
+          type: "success",
+        });
         console.log(res.data);
       })
       .catch((err) => {
+        toast({
+          title: "Locking Failed",
+          message: "Locking Failed",
+          type: "error",
+        });
         console.log(err);
       });
   };
@@ -143,7 +198,7 @@ export default function MarksTable() {
   return (
     <div className="p-2 m-3  overflow-x-auto bg-sec">
       <Table className="min-w-full divide-y divide-gray-200">
-        <TableHeader className="">
+        <TableHeader>
           <TableRow>
             <TableHead>Student Name</TableHead>
             <TableHead>{studentData[0]?.marks?.marks[0]?.aspectName}</TableHead>
@@ -177,131 +232,199 @@ export default function MarksTable() {
                   Download
                 </CSVLink>
               </Button>
-
-              <Button className="ml-2 bg-red-600" onClick={handleLockAll}>
-                Lock All
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button className="ml-2 bg-red-600">Lock All</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Lock all marks?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure to lock all students marks?This cannot be
+                      changed
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleLockAll}>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {studentData.map((student) => (
-            <TableRow key={student._id}>
-              <TableCell className="font-medium">{student.name}</TableCell>
-              {!editMode[student._id] && (
-                <>
-                  <TableCell>
-                    {student.marks.marks[0].marks == -1
-                      ? 0
-                      : student.marks.marks[0].marks}
-                  </TableCell>
-                  <TableCell>
-                    {student.marks.marks[1].marks == -1
-                      ? 0
-                      : student.marks.marks[1].marks}
-                  </TableCell>
-                  <TableCell>
-                    {student.marks.marks[2].marks == -1
-                      ? 0
-                      : student.marks.marks[2].marks}
-                  </TableCell>
-                  <TableCell>
-                    {student.marks.marks[3].marks == -1
-                      ? 0
-                      : student.marks.marks[3].marks}
-                  </TableCell>
-                  <TableCell>
-                    {student.marks.marks[0].marks +
-                      student.marks.marks[1].marks +
-                      student.marks.marks[2].marks +
-                      student.marks.marks[3].marks ==
-                    -4
-                      ? 0
-                      : student.marks.marks[0].marks +
+          {loading ? (
+            <>
+              <Skeleton className="w-[80%] h-[30px] rounded-xl mb-4 bg-skelton" />{" "}
+              <Skeleton className="w-[80%] h-[30px] rounded-xl mb-4 bg-skelton" />{" "}
+              <Skeleton className="w-[80%] h-[30px] rounded-xl mb-4 bg-skelton" />{" "}
+              <Skeleton className="w-[80%] h-[30px] rounded-xl mb-4 bg-skelton" />
+            </>
+          ) : (
+            studentData.map((student) => (
+              <TableRow key={student._id}>
+                <TableCell className="font-medium">{student.name}</TableCell>
+                {!editMode[student._id] && (
+                  <>
+                    <TableCell>
+                      {student.marks.marks[0].marks == -1
+                        ? 0
+                        : student.marks.marks[0].marks}
+                    </TableCell>
+                    <TableCell>
+                      {student.marks.marks[1].marks == -1
+                        ? 0
+                        : student.marks.marks[1].marks}
+                    </TableCell>
+                    <TableCell>
+                      {student.marks.marks[2].marks == -1
+                        ? 0
+                        : student.marks.marks[2].marks}
+                    </TableCell>
+                    <TableCell>
+                      {student.marks.marks[3].marks == -1
+                        ? 0
+                        : student.marks.marks[3].marks}
+                    </TableCell>
+                    <TableCell>
+                      {student.marks.marks[0].marks +
                         student.marks.marks[1].marks +
                         student.marks.marks[2].marks +
-                        student.marks.marks[3].marks}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      disabled={student.marks.locked}
-                      className="m-1 bg-butPrim hover:bg-butSec"
-                      onClick={() => handleEdit(student._id)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      className="m-1 bg-red-600"
-                      type="submit"
-                      onClick={() => handleOneLock(student._id)}
-                    >
-                      Lock
-                    </Button>
-                  </TableCell>
-                </>
-              )}
-              {editMode[student._id] && (
-                <>
-                  <TableCell>
-                    <Input
-                      value={aspect1}
-                      type="number"
-                      onChange={(e) =>
-                        handleInputChange(setAspect1, e.target.value)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      value={aspect2}
-                      type="number"
-                      onChange={(e) =>
-                        handleInputChange(setAspect2, e.target.value)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      value={aspect3}
-                      type="number"
-                      onChange={(e) =>
-                        handleInputChange(setAspect3, e.target.value)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      value={aspect4}
-                      type="number"
-                      onChange={(e) =>
-                        handleInputChange(setAspect4, e.target.value)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell>{aspect1 + aspect2 + aspect3 + aspect4}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      className="m-1 bg-blue-600 hover:bg-blue-700"
-                      type="submit"
-                      onClick={() => {
-                        handleClick(student._id);
-                      }}
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      className="m-1 bg-red-600"
-                      type="submit"
-                      disabled={true}
-                      onClick={() => handleOneLock(student._id)}
-                    >
-                      Lock
-                    </Button>
-                  </TableCell>
-                </>
-              )}
-            </TableRow>
-          ))}
+                        student.marks.marks[3].marks ==
+                      -4
+                        ? 0
+                        : student.marks.marks[0].marks +
+                          student.marks.marks[1].marks +
+                          student.marks.marks[2].marks +
+                          student.marks.marks[3].marks}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        disabled={student.marks.locked}
+                        className="m-1 bg-butPrim hover:bg-butSec"
+                        onClick={() => handleEdit(student._id)}
+                      >
+                        Edit
+                      </Button>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button className="m-1 bg-red-600" type="submit">
+                            Lock
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Lock student marks?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure to lock the marks?This cannot be
+                              changed.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleOneLock(student._id)}
+                            >
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  </>
+                )}
+                {editMode[student._id] && (
+                  <>
+                    <TableCell>
+                      <Input
+                        value={aspect1}
+                        type="number"
+                        onChange={(e) =>
+                          handleInputChange(setAspect1, e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={aspect2}
+                        type="number"
+                        onChange={(e) =>
+                          handleInputChange(setAspect2, e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={aspect3}
+                        type="number"
+                        onChange={(e) =>
+                          handleInputChange(setAspect3, e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={aspect4}
+                        type="number"
+                        onChange={(e) =>
+                          handleInputChange(setAspect4, e.target.value)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {aspect1 + aspect2 + aspect3 + aspect4}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            className="m-1 bg-blue-600 hover:bg-blue-700"
+                            type="submit"
+                          >
+                            Save
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Save student marks?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure to save the marks?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => {
+                                handleClick(student._id);
+                              }}
+                            >
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      <Button
+                        className="m-1 bg-red-600"
+                        type="submit"
+                        disabled={true}
+                        onClick={() => handleOneLock(student._id)}
+                      >
+                        Lock
+                      </Button>
+                    </TableCell>
+                  </>
+                )}
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

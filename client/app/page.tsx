@@ -18,26 +18,31 @@ interface Mentor {
   students?: any[];
   password: string;
 }
+import { Skeleton } from "@/components/ui/skeleton";
 
 // const mentors: Mentor[] = mentorsData as Mentor[];
 
 const LandingPage: React.FC = () => {
   const [mentors, setMentors] = React.useState<Mentor[]>([]);
+  const [loading, setLoading] = React.useState(false);
   useEffect(() => {
+    setLoading(true);
     axios
       .get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/mentor/getallmentors`)
       .then((res) => {
         setMentors(res.data);
         console.log(res.data);
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
       });
-  },[]);
+  }, []);
   const router = useRouter();
   const handleRedirect = (id: string) => {
-    const selectedMentor=mentors.find((mentor)=>mentor._id===id);
-    localStorage.setItem("data",JSON.stringify(selectedMentor));
+    const selectedMentor = mentors.find((mentor) => mentor._id === id);
+    localStorage.setItem("data", JSON.stringify(selectedMentor));
     router.push(`/${id}`);
     console.log(`Redirecting to ${id}'s page...`);
   };
@@ -52,15 +57,19 @@ const LandingPage: React.FC = () => {
           className="flex flex-col gap-6 sm:max-h-[180px]  max-h-[120px] overflow-y-auto"
           style={{ scrollbarWidth: "none" }}
         >
-          {mentors.map((user) => (
-            <Button
-              className="bg-fontPrim "
-              key={user.email}
-              onClick={() => handleRedirect(user._id)}
-            >
-              {user.name}
-            </Button>
-          ))}
+          {loading ? (
+            <Skeleton className=" sm:max-h-[180px]  max-h-[120px] bg-skelton rounded-full" />
+          ) : (
+            mentors.map((user) => (
+              <Button
+                className="bg-fontPrim "
+                key={user._id}
+                onClick={() => handleRedirect(user._id)}
+              >
+                {user.name}
+              </Button>
+            ))
+          )}
         </div>
       </div>
     </div>

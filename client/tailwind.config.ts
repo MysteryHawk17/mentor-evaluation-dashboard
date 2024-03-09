@@ -33,6 +33,7 @@ const config = {
         fontPrim:"#C28153",
         butPrim:"#C28153",
         butSec:"#335C67",
+        skelton:"#000000",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
