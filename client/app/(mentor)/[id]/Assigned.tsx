@@ -23,6 +23,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { CSVLink } from "react-csv";
 
@@ -96,7 +103,7 @@ export default function MarksTable() {
       )
       .then((res) => {
         toast({
-          variant:"default",
+          variant: "default",
           title: "Marks Updated",
           description: "Marks Updated Successfully",
         });
@@ -106,7 +113,7 @@ export default function MarksTable() {
         toast({
           title: "Marks Update Failed",
           description: "Marks Update Failed",
-          variant: "destructive"
+          variant: "destructive",
         });
         console.log(err);
       });
@@ -193,21 +200,44 @@ export default function MarksTable() {
     total: number;
   }
   const [csvData, setCsvData] = useState<CsvData[]>([]);
+  const [filterData, setFilterData] = useState<Student[]>(studentData);
+  const handleSelectChange = (e: any) => {
+    let filteredData: Student[] = [];
 
-  // console.log(studentData[0].marks.marks[0].aspectName)
+    if (e === "all") {
+      filteredData = studentData;
+    } else if (e === "unassigned") {
+      filteredData = studentData.filter((student) => !student.marks.locked);
+    } else if (e === "assigned") {
+      filteredData = studentData.filter((student) => student.marks.locked);
+    }
+
+    setFilterData(filteredData);
+    console.log(e);
+  };
   return (
     <div className="p-2 m-3  overflow-x-auto bg-sec">
       <Table className="min-w-full divide-y divide-gray-200">
         <TableHeader>
           <TableRow>
             <TableHead>Student Name</TableHead>
-            <TableHead>{studentData[0]?.marks?.marks[0]?.aspectName}</TableHead>
-            <TableHead>{studentData[0]?.marks?.marks[1]?.aspectName}</TableHead>
-            <TableHead>{studentData[0]?.marks?.marks[2]?.aspectName}</TableHead>
-            <TableHead>{studentData[0]?.marks?.marks[3]?.aspectName}</TableHead>
+            <TableHead>{filterData[0]?.marks?.marks[0]?.aspectName}</TableHead>
+            <TableHead>{filterData[0]?.marks?.marks[1]?.aspectName}</TableHead>
+            <TableHead>{filterData[0]?.marks?.marks[2]?.aspectName}</TableHead>
+            <TableHead>{filterData[0]?.marks?.marks[3]?.aspectName}</TableHead>
             <TableHead>Total</TableHead>
-            <TableHead className="text-right">
-              <Button className="mr-2 bg-green-500 ">
+            <TableHead className="text-right flex justify-between ">
+              <Select onValueChange={(e) => handleSelectChange(e)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Show" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  <SelectItem value="assigned">Assigned</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button className="mr-2 ml-2 lg:mr-[-1rem] bg-green-500 justify-self-end">
                 <CSVLink
                   data={csvData}
                   asyncOnClick={true}
@@ -264,7 +294,7 @@ export default function MarksTable() {
               <Skeleton className="w-[80%] h-[30px] rounded-xl mb-4 bg-skelton" />
             </>
           ) : (
-            studentData.map((student) => (
+            filterData.map((student) => (
               <TableRow key={student._id}>
                 <TableCell className="font-medium">{student.name}</TableCell>
                 {!editMode[student._id] && (
@@ -312,7 +342,10 @@ export default function MarksTable() {
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button className="m-1 bg-butPrim hover:bg-red-500" type="submit">
+                          <Button
+                            className="m-1 bg-butPrim hover:bg-red-500"
+                            type="submit"
+                          >
                             Lock
                           </Button>
                         </AlertDialogTrigger>

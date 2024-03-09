@@ -27,6 +27,7 @@ The project aims to provide a solution for the assignment for Scaler Intern 2024
 5. **Viewing:**
    - The landing page consists of a list of mentors which is a depiction of different accounts which are present on the portal.
    - After entering the portal, the mentors have two options to either assign/ unassign the students or view the marks.
+   - A Select button is present on the table to filter out students based on if their marks have been assigned or not.
 
 ## Assumptions
 
