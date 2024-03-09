@@ -15,39 +15,28 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-interface Student {
-  _id: string;
-  name: string;
-  displayPic?: string;
-  education?: string[];
-  skills?: string[];
-  bio?: string;
-  experience?: string[];
-  linkedIn?: string;
-  githubLink?: string;
-  codingLinks?: string[];
-  email: string;
-  phone: string;
-  mentor?: string | null;
-  password: string;
-  marks: {
-    marks: {
-      aspectName: string;
-      marks: number;
-    }[];
-    locked: boolean;
-  };
-}
+import { useRecoilState } from "recoil";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Student,
+  assignedStudentsState,
+  unassignedStudentsState,
+  userState,
+} from "@/lib/state";
 
 const Dashboard = () => {
   const { toast } = useToast();
-  const [assignedStudents, setAssignedStudents] = useState<Student[]>([]);
-  const [unassignedStudents, setUnassignedStudents] = useState<Student[]>([]);
+  const [assignedStudents, setAssignedStudents] = useRecoilState(
+    assignedStudentsState
+  );
+  const [unassignedStudents, setUnassignedStudents] = useRecoilState(
+    unassignedStudentsState
+  );
   const { id } = useParams();
   console.log(id);
   const [unassignedLoading, setUnassignedLoading] = useState(false);
   const [assignedLoading, setAssignedLoading] = useState(false);
+  const[userData,setUserData]=useRecoilState(userState);
   useEffect(() => {
     setUnassignedLoading(true);
     setAssignedLoading(true);
@@ -99,8 +88,7 @@ const Dashboard = () => {
     if (assignedStudents.length > 4) {
       alert("You cannot save more than 4 assigned students.");
       return;
-    }
-    else if (assignedStudents.length <3) {
+    } else if (assignedStudents.length < 3 && assignedStudents.length != 0) {
       alert("You cannot save less than 3 assigned students.");
       return;
     }
@@ -119,6 +107,7 @@ const Dashboard = () => {
           description: "Students have been assigned successfully",
           variant: "default",
         });
+        setUserData(res.data);
       })
       .catch((err) => {
         console.log(err);

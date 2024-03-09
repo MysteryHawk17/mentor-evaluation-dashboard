@@ -1,30 +1,17 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import "./globals.css";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-interface Mentor {
-  _id: string;
-  name: string;
-  displayPic?: string;
-  education?: string[];
-  skills?: string[];
-  bio?: string;
-  experience?: string[];
-  linkedIn?: string;
-  email: string;
-  phone: string;
-  students?: any[];
-  password: string;
-}
+import { useRecoilState } from "recoil";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
-// const mentors: Mentor[] = mentorsData as Mentor[];
+import { mentorState } from "@/lib/state";
 
 const LandingPage: React.FC = () => {
-  const [mentors, setMentors] = React.useState<Mentor[]>([]);
-  const [loading, setLoading] = React.useState(false);
+  const [mentors, setMentors] = useRecoilState(mentorState);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     setLoading(true);
     axios

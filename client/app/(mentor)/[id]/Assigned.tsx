@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useParams } from "next/navigation";
@@ -36,34 +37,14 @@ import { CSVLink } from "react-csv";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
-interface Student {
-  _id: string;
-  name: string;
-  displayPic?: string;
-  education?: string[];
-  skills?: string[];
-  bio?: string;
-  experience?: string[];
-  linkedIn?: string;
-  githubLink?: string;
-  codingLinks?: string[];
-  email: string;
-  phone: string;
-  mentor?: string | null;
-  password: string;
-  marks: {
-    marks: {
-      aspectName: string;
-      marks: number;
-    }[];
-    locked: boolean;
-  };
-}
+import { useRecoilState } from "recoil";
+import { Student, assignedStudentsState } from "@/lib/state";
+
 export default function MarksTable() {
   const { toast } = useToast();
   const { id } = useParams();
   console.log(id);
-  const [studentData, setStudentData] = useState<Student[]>([]);
+  const [studentData, setStudentData] = useRecoilState(assignedStudentsState);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     setLoading(true);
@@ -90,18 +71,32 @@ export default function MarksTable() {
   const handleClick = (student: string) => {
     setEditMode((prev) => ({ ...prev, [student]: !prev[student] }));
     const findStudent = studentData.find((s) => s._id === student);
-    if (findStudent) {
-      findStudent.marks.marks[0].marks = aspect1;
-      findStudent.marks.marks[1].marks = aspect2;
-      findStudent.marks.marks[2].marks = aspect3;
-      findStudent.marks.marks[3].marks = aspect4;
+    console.log(findStudent?.marks.marks);
+    if (findStudent === undefined) {
+      return;
     }
+    const obj = {
+      marks: [
+        { aspectName: findStudent.marks.marks[0].aspectName, marks: aspect1 },
+        { aspectName: findStudent.marks.marks[1].aspectName, marks: aspect2 },
+        { aspectName: findStudent.marks.marks[2].aspectName, marks: aspect3 },
+        { aspectName: findStudent.marks.marks[3].aspectName, marks: aspect4 },
+      ],
+    };
     axios
       .put(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/student/updatemark/${findStudent?._id}`,
-        findStudent?.marks
+        obj
       )
       .then((res) => {
+        setStudentData((prevStudentData) => {
+          return prevStudentData.map((studen) => {
+            if (studen._id === student) {
+              return res.data; // Update the specific student's data
+            }
+            return student; // Keep other students' data unchanged
+          });
+        })
         toast({
           variant: "default",
           title: "Marks Updated",
@@ -181,6 +176,14 @@ export default function MarksTable() {
           variant: "default",
         });
         console.log(res.data);
+        setStudentData((prevStudentData) => {
+          return prevStudentData.map((student) => {
+            if (student._id === studentId) {
+              return res.data;
+            }
+            return student;
+          });
+        });
       })
       .catch((err) => {
         toast({
