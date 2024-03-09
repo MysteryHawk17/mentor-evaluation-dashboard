@@ -113,16 +113,16 @@ const Dashboard = () => {
         console.log(res.data);
         toast({
           title: "Students Assigned",
-          message: "Students have been assigned successfully",
-          type: "success",
+          description: "Students have been assigned successfully",
+          variant: "default",
         });
       })
       .catch((err) => {
         console.log(err);
         toast({
           title: "Cannot assign student",
-          message: err.response.data.message,
-          type: "error",
+          description: err.response.data.message,
+          variant: "destructive",
         });
       });
     console.log("Saving data:", assignedStudents);

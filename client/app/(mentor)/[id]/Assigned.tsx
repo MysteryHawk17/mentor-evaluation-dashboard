@@ -96,17 +96,17 @@ export default function MarksTable() {
       )
       .then((res) => {
         toast({
+          variant:"default",
           title: "Marks Updated",
-          message: "Marks Updated Successfully",
-          type: "success",
+          description: "Marks Updated Successfully",
         });
         console.log(res.data);
       })
       .catch((err) => {
         toast({
           title: "Marks Update Failed",
-          message: "Marks Update Failed",
-          type: "error",
+          description: "Marks Update Failed",
+          variant: "destructive"
         });
         console.log(err);
       });
@@ -148,15 +148,15 @@ export default function MarksTable() {
         console.log(res.data);
         toast({
           title: "Locked All",
-          message: "Locked successfully",
-          type: "success",
+          description: "Locked successfully",
+          variant: "default",
         });
       })
       .catch((err) => {
         toast({
           title: "Locking Failed",
-          message: "Locking Failed",
-          type: "error",
+          description: "Locking Failed",
+          variant: "destructive",
         });
         console.log(err);
       });
@@ -170,16 +170,16 @@ export default function MarksTable() {
       .then((res) => {
         toast({
           title: "Locked",
-          message: "Locked successfully",
-          type: "success",
+          description: "Locked successfully",
+          variant: "default",
         });
         console.log(res.data);
       })
       .catch((err) => {
         toast({
           title: "Locking Failed",
-          message: "Locking Failed",
-          type: "error",
+          description: "Locking Failed",
+          variant: "destructive",
         });
         console.log(err);
       });

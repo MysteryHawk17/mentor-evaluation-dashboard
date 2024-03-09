@@ -19,7 +19,7 @@ interface Mentor {
   password: string;
 }
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { toast } from "@/components/ui/use-toast";
 // const mentors: Mentor[] = mentorsData as Mentor[];
 
 const LandingPage: React.FC = () => {
@@ -33,10 +33,18 @@ const LandingPage: React.FC = () => {
         setMentors(res.data);
         console.log(res.data);
         setLoading(false);
+        toast({
+          variant: "default",
+          title: "Fetched successfully",
+        });
       })
       .catch((err) => {
         console.log(err);
         setLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Failed to fetch mentors",
+        });
       });
   }, []);
   const router = useRouter();
