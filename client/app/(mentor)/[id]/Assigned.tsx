@@ -304,7 +304,7 @@ export default function MarksTable() {
                     <TableCell className="text-right">
                       <Button
                         disabled={student.marks.locked}
-                        className="m-1 bg-butPrim hover:bg-butSec"
+                        className="m-1 hover:bg-hov  bg-butSec"
                         onClick={() => handleEdit(student._id)}
                       >
                         Edit
@@ -312,7 +312,7 @@ export default function MarksTable() {
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button className="m-1 bg-red-600" type="submit">
+                          <Button className="m-1 bg-butPrim hover:bg-red-500" type="submit">
                             Lock
                           </Button>
                         </AlertDialogTrigger>
@@ -385,6 +385,7 @@ export default function MarksTable() {
                         <AlertDialogTrigger asChild>
                           <Button
                             className="m-1 bg-blue-600 hover:bg-blue-700"
+                            // className="m-1 bg-blue-600 hover:bg-blue-700"
                             type="submit"
                           >
                             Save
@@ -412,7 +413,7 @@ export default function MarksTable() {
                         </AlertDialogContent>
                       </AlertDialog>
                       <Button
-                        className="m-1 bg-red-600"
+                        className="m-1 bg-butPrim hover:bg-butSec"
                         type="submit"
                         disabled={true}
                         onClick={() => handleOneLock(student._id)}

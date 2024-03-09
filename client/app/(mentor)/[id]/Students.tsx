@@ -9,7 +9,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -99,6 +98,10 @@ const Dashboard = () => {
   const saveData = () => {
     if (assignedStudents.length > 4) {
       alert("You cannot save more than 4 assigned students.");
+      return;
+    }
+    else if (assignedStudents.length <3) {
+      alert("You cannot save less than 3 assigned students.");
       return;
     }
     axios
