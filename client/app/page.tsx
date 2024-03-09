@@ -1,8 +1,7 @@
 "use client";
-
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import "../globals.css";
+import "./globals.css";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 interface Mentor {

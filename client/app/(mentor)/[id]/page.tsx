@@ -55,7 +55,7 @@ export default function MentorPage() {
       setUserData(JSON.parse(data));
     }
   },[]);
-  const [sidePanel, setSidePanel] = useState(1);
+  const [sidePanel, setSidePanel] = useState(0);
   return (
     <div className="flex bg-prim flex-col ">
       <div className="p-2 flex justify-between items-center mt-2.5">
@@ -81,6 +81,7 @@ export default function MentorPage() {
               <SheetClose asChild>
                 <Button
                   className="bg-prim"
+                  disabled={(userData?.students?.length ?? 0) < 3 || (userData?.students?.length ?? 0) > 4}
                   onClick={() => {
                     setSidePanel(1);
                   }}
