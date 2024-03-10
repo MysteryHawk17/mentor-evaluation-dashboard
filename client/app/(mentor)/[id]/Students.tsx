@@ -175,7 +175,7 @@ const Dashboard = () => {
                   >
                     <span>{student.name}</span>
                     <Button
-                      disabled={student.marks.locked}
+                      disabled={student?.marks?.locked}
                       className="px-2 py-1 bg-red-500 text-white rounded"
                       onClick={() => unassignStudent(student)}
                     >
